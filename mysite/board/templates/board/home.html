@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>VulnerableBoard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        header {
+            background: #333;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .thread {
+            background: white;
+            padding: 20px;
+            margin-top: 15px;
+            border-radius: 8px;
+        }
+
+        .thread a {
+            color: #2463a6;
+            text-decoration: none;
+        }
+
+        .meta {
+            color: #777;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>VulnerableBoard</h1>
+        <p>A place for discussions.</p>
+    </header>
+
+    <div>
+    {% if user.is_authenticated %}
+        <p>Welcome, {{ user.username }}!</p>
+
+        <form method="POST" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit">Logout</button>
+        </form>
+
+    {% else %}
+        <a href="{% url 'login' %}">Login</a>
+        |
+        <a href="{% url 'register' %}">Register</a>
+    {% endif %}
+    </div>
+
+    <h2>Recent discussions</h2>
+
+    {% for thread in threads %}
+        <div class="thread">
+            <h3>{{ thread.title }}</h3>
+
+            <p class="meta">
+                Posted by {{ thread.author.username }}
+                on {{ thread.created_at }}
+            </p>
+        </div>
+    {% empty %}
+        <p>No discussions yet. Be the first to start one!</p>
+    {% endfor %}
+
+</body>
+</html>

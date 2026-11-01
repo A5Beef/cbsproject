@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Thread</title>
+</head>
+<body>
+
+    <h1>Create a new discussion</h1>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <label>Thread title:</label>
+        <input type="text" name="title" maxlength="200" required>
+
+        <button type="submit">Create Thread</button>
+    </form>
+
+    <a href="{% url 'home' %}">Back to homepage</a>
+
+</body>
+</html>

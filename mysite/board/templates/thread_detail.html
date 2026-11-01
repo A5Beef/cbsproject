@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ thread.title }}</title>
+</head>
+<body>
+
+    <h1>{{ thread.title }}</h1>
+
+    <p>
+        Created by {{ thread.author.username }}
+        on {{ thread.created_at }}
+    </p>
+
+    <hr>
+
+    <h2>Replies</h2>
+
+    {% for post in thread.posts.all %}
+        <div>
+            <p>{{ post.content }}</p>
+
+            <small>
+                By {{ post.author.username }}
+                on {{ post.created_at }}
+            </small>
+        </div>
+        <hr>
+    {% empty %}
+        <p>No replies yet.</p>
+    {% endfor %}
+
+    {% if user.is_authenticated %}
+        <h2>Write a reply</h2>
+
+        <form method="POST" action="{% url 'create_reply' thread.id %}">
+            {% csrf_token %}
+
+            <textarea name="content" required></textarea>
+
+            <button type="submit">Post Reply</button>
+        </form>
+    {% else %}
+        <p>
+            <a href="{% url 'login' %}">Log in</a>
+            to reply.
+        </p>
+    {% endif %}
+
+    <p><a href="{% url 'home' %}">Back to homepage</a></p>
+
+</body>
+</html> 
