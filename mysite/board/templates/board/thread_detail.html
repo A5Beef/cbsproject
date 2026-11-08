@@ -25,6 +25,12 @@
                 By {{ post.author.username }}
                 on {{ post.created_at }}
             </small>
+
+            {% if user == post.author %}
+                <a href="{% url 'edit_post' thread.id post.id %}">
+                    Edit
+                </a>
+            {% endif %}
         </div>
         <hr>
     {% empty %}

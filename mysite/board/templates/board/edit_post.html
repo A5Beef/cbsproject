@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title> Edit reply on {{ thread.title }}</title>
+</head>
+<body>
+
+    <h1> Edit reply on {{ thread.title }}</h1>
+
+    <p>
+        Created by {{ thread.author.username }}
+        on {{ thread.created_at }}
+    </p>
+
+    <hr>
+
+    <h2>Edit Reply</h2>
+
+    <form method="POST" action="{% url 'edit_post' thread.id post.id %}">
+        {% csrf_token %}
+
+        <textarea name="content" required>{{ post.content }}</textarea>
+
+        <button type="submit">Update Reply</button>
+    </form>
+
+
+    <p><a href="{% url 'home' %}">Back to homepage</a></p>
+
+</body>
+</html> 

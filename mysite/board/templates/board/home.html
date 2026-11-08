@@ -63,8 +63,13 @@
     <h2>Recent discussions</h2>
 
     {% for thread in threads %}
+    
         <div class="thread">
-            <h3>{{ thread.title }}</h3>
+            <h3>
+                <a href="{% url 'thread_detail' thread.id %}">
+                    {{ thread.title }}
+                </a>
+            </h3>
 
             <p class="meta">
                 Posted by {{ thread.author.username }}

@@ -37,4 +37,9 @@ urlpatterns = [
         views.create_reply,
         name="create_reply"
         ),
+
+    path("thread/<int:thread_id>/post/<int:post_id>/edit/",
+        views.edit_post,
+        name="edit_post"
+        ),
 ]

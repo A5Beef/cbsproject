@@ -63,3 +63,26 @@ def create_reply(request, thread_id):
             )
             
     return redirect("thread_detail", thread_id=thread.id)
+
+@login_required
+def edit_post(request, thread_id, post_id):
+    thread = get_object_or_404(Thread, id=thread_id)
+    post = get_object_or_404(
+        Post,
+        id=post_id,
+        thread=thread,
+        #author=request.user ##Broken Access Control here
+        )
+
+    if request.method == "POST":
+        content = request.POST.get("content")
+
+        if content:
+            post.content = content
+            post.save()
+            return redirect("thread_detail", thread_id=thread.id)
+
+    return render(request, "board/edit_post.html", {
+        "thread": thread,
+        "post": post
+    })
