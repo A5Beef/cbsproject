@@ -1,60 +1,51 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>{{ thread.title }}</title>
-</head>
-<body>
+{% extends "board/base.html" %}
 
-    <h1>{{ thread.title }}</h1>
+{% block title %}{{ thread.title }} - VulnerableBoard{% endblock %}
 
-    <p>
-        Created by {{ thread.author.username }}
-        on {{ thread.created_at }}
-    </p>
-
-    <hr>
-
-    <h2>Replies</h2>
-
-    {% for post in thread.posts.all %}
-        <div>
-            <p>{{ post.content }}</p>
-
-            <small>
-                By {{ post.author.username }}
-                on {{ post.created_at }}
-            </small>
-
-            {% if user == post.author %}
-                <a href="{% url 'edit_post' thread.id post.id %}">
-                    Edit
-                </a>
-            {% endif %}
-        </div>
-        <hr>
-    {% empty %}
-        <p>No replies yet.</p>
-    {% endfor %}
-
-    {% if user.is_authenticated %}
-        <h2>Write a reply</h2>
-
-        <form method="POST" action="{% url 'create_reply' thread.id %}">
-            {% csrf_token %}
-
-            <textarea name="content" required></textarea>
-
-            <button type="submit">Post Reply</button>
-        </form>
-    {% else %}
-        <p>
-            <a href="{% url 'login' %}">Log in</a>
-            to reply.
+{% block content %}
+    <div class="card">
+        <h2>{{ thread.title }}</h2>
+        <p class="meta">
+            Created by {{ thread.author.username }}
+            on {{ thread.created_at }}
         </p>
-    {% endif %}
+    </div>
 
-    <p><a href="{% url 'home' %}">Back to homepage</a></p>
+    <div class="card">
+        <h2>Replies</h2>
+        {% for post in thread.posts.all %}
+            <div class="post">
+                <p>{{ post.content }}</p>
+                <small class="meta">
+                    By {{ post.author.username }}
+                    on {{ post.created_at }}
+                </small>
+                {% if user == post.author %}
+                    <div class="post-actions">
+                        <a href="{% url 'edit_post' thread.id post.id %}">Edit</a>
+                        <a href="{% url 'delete_post' thread.id post.id %}">Delete</a>
+                    </div>
+                {% endif %}
+            </div>
+        {% empty %}
+            <p>No replies yet.</p>
+        {% endfor %}
+    </div>
 
-</body>
-</html> 
+    <div class="card">
+        {% if user.is_authenticated %}
+            <h2>Write a reply</h2>
+            <form method="POST" action="{% url 'create_reply' thread.id %}">
+                {% csrf_token %}
+                <textarea name="content" required></textarea>
+                <div class="actions">
+                    <button type="submit">Post Reply</button>
+                </div>
+            </form>
+        {% else %}
+            <p class="notice">
+                <a href="{% url 'login' %}">Log in</a> to reply.
+            </p>
+        {% endif %}
+    </div>
+{% endblock %}

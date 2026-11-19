@@ -1,31 +1,20 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Login - VulnerableBoard</title>
-</head>
-<body>
+{% extends "board/base.html" %}
 
-    <h1>Login</h1>
+{% block title %}Login - VulnerableBoard{% endblock %}
 
-    {% if form.errors %}
-        <p>Invalid username or password.</p>
-    {% endif %}
-
-    <form method="POST">
-        {% csrf_token %}
-
-        {{ form.as_p }}
-
-        <button type="submit">Login</button>
-    </form>
-
-    <p>
-        Don't have an account?
-        <a href="{% url 'register' %}">Register here</a>
-    </p>
-
-    <a href="{% url 'home' %}">Back to homepage</a>
-
-</body>
-</html>
+{% block content %}
+    <div class="card">
+        <h2>Login</h2>
+        {% if form.errors %}
+            <p class="notice">Invalid username or password.</p>
+        {% endif %}
+        <form method="POST">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <div class="actions">
+                <button type="submit">Login</button>
+            </div>
+        </form>
+        <p>Don't have an account? <a href="{% url 'register' %}">Register here</a></p>
+    </div>
+{% endblock %}

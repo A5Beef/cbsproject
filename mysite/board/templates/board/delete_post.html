@@ -1,0 +1,23 @@
+{% extends "board/base.html" %}
+
+{% block title %}Delete Reply - VulnerableBoard{% endblock %}
+
+{% block content %}
+    <div class="card">
+        <h2>Delete reply</h2>
+        <p class="meta">
+            Thread: {{ thread.title }}<br>
+            Created by {{ thread.author.username }} on {{ thread.created_at }}
+        </p>
+        <p>Are you sure you want to delete this reply?</p>
+        <p class="notice">"{{ post.content }}"</p>
+        <p>This action cannot be undone.</p>
+        <form method="POST" action="{% url 'delete_post' thread.id post.id %}">
+            {% csrf_token %}
+            <div class="actions">
+                <button class="danger" type="submit">Delete Reply</button>
+                <a href="{% url 'thread_detail' thread.id %}">Cancel</a>
+            </div>
+        </form>
+    </div>
+{% endblock %}

@@ -42,4 +42,9 @@ urlpatterns = [
         views.edit_post,
         name="edit_post"
         ),
+
+    path("thread/<int:thread_id>/post/<int:post_id>/delete/",
+        views.delete_post,
+        name="delete_post"
+        ),  
 ]

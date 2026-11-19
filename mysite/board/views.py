@@ -71,7 +71,10 @@ def edit_post(request, thread_id, post_id):
         Post,
         id=post_id,
         thread=thread,
-        #author=request.user ##Broken Access Control here
+
+        # Broken Access Control. Commented out ownership check. Uncomment code below for secure version.
+        # Doesn't check ownership, resulting in other users being able to edit posts they don't own.
+        author=request.user
         )
 
     if request.method == "POST":
@@ -83,6 +86,28 @@ def edit_post(request, thread_id, post_id):
             return redirect("thread_detail", thread_id=thread.id)
 
     return render(request, "board/edit_post.html", {
+        "thread": thread,
+        "post": post
+    })
+
+@login_required
+def delete_post(request, thread_id, post_id):
+    thread = get_object_or_404(Thread, id=thread_id)
+    post = get_object_or_404(
+        Post,
+        id=post_id,
+        thread=thread,
+
+        # Broken Access Control. Commented out ownership check. Uncomment code below for secure version.
+        # Doesn't check ownership, resulting in other users being able to delete posts they don't own.
+        author=request.user
+        )
+
+    if request.method == "POST":
+        post.delete()
+        return redirect("thread_detail", thread_id=thread.id)
+
+    return render(request, "board/delete_post.html", {
         "thread": thread,
         "post": post
     })
