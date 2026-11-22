@@ -46,5 +46,25 @@ urlpatterns = [
     path("thread/<int:thread_id>/post/<int:post_id>/delete/",
         views.delete_post,
         name="delete_post"
-        ),  
+        ),
+
+    path("inbox/",
+        views.inbox,
+        name="inbox"
+        ),
+
+    path("messages/sent/",
+        views.sent_messages,
+        name="sent_messages"
+        ),
+
+    path("message/send/",
+        views.send_message,
+        name="send_message"
+        ),
+
+    path("message/<int:message_id>/",
+        views.message_detail,
+        name="message_detail"
+        ),
 ]

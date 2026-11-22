@@ -1,8 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Thread, Post
+from .models import Message, Thread, Post
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from django.db.models import Q
 
 
 def home(request):
@@ -110,4 +112,67 @@ def delete_post(request, thread_id, post_id):
     return render(request, "board/delete_post.html", {
         "thread": thread,
         "post": post
+    })
+
+@login_required
+def inbox(request):
+    messages = Message.objects.filter(recipient=request.user).order_by("-created_at")
+
+    return render(request, "board/inbox.html", {
+        "messages": messages
+    })
+
+@login_required
+def sent_messages(request):
+    messages = Message.objects.filter(sender=request.user).order_by("-created_at")
+
+    return render(request, "board/sent_messages.html", {
+        "messages": messages
+    })
+
+@login_required
+def send_message(request):
+    if request.method == "POST":
+        recipient_id = request.POST.get("recipient")
+        content = request.POST.get("content")
+
+        if recipient_id and content:
+            recipient = get_object_or_404(User, id=recipient_id)
+
+            Message.objects.create(
+                sender=request.user,
+                recipient=recipient,
+                content=content
+            )
+
+            return redirect("sent_messages")
+
+    users = User.objects.exclude(id=request.user.id)
+
+    return render(request, "board/send_message.html", {
+        "users": users
+    })
+
+@login_required
+def message_detail(request, message_id):
+    message = get_object_or_404(
+        Message,
+        Q(sender=request.user) | Q(recipient=request.user),
+        id=message_id
+    )
+
+    conversation_partner = (
+        message.recipient
+        if message.sender == request.user
+        else message.sender
+    )
+    conversation = Message.objects.filter(
+        Q(sender=request.user, recipient=conversation_partner)
+        | Q(sender=conversation_partner, recipient=request.user)
+    ).order_by("created_at")
+
+    return render(request, "board/message_detail.html", {
+        "message": message,
+        "conversation": conversation,
+        "conversation_partner": conversation_partner
     })

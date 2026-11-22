@@ -1,0 +1,35 @@
+{% extends "board/base.html" %}
+
+{% block title %}Private Message - VulnerableBoard{% endblock %}
+
+{% block content %}
+    <div class="card">
+        <h2>Conversation with {{ conversation_partner.username }}</h2>
+        <p class="meta">
+            Selected message sent {{ message.created_at }}
+        </p>
+    </div>
+
+    <div class="card">
+        {% for conversation_message in conversation %}
+            <div class="message-bubble{% if conversation_message.sender == user %} sent{% endif %}{% if conversation_message.id == message.id %} selected{% endif %}">
+                <p>{{ conversation_message.content }}</p>
+                <small class="meta">
+                    {% if conversation_message.sender == user %}
+                        Sent by you
+                    {% else %}
+                        From {{ conversation_message.sender.username }}
+                    {% endif %}
+                    on {{ conversation_message.created_at }}
+                </small>
+            </div>
+        {% empty %}
+            <p>No messages in this conversation.</p>
+        {% endfor %}
+        <div class="actions">
+            <a href="{% url 'inbox' %}">Back to inbox</a>
+            <a href="{% url 'sent_messages' %}">Sent messages</a>
+            <a href="{% url 'send_message' %}">Send another message</a>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends "board/base.html" %}
+
+{% block title %}Sent Messages - VulnerableBoard{% endblock %}
+
+{% block content %}
+    <div class="actions">
+        <h2>Sent messages</h2>
+        <a href="{% url 'send_message' %}">Send a message</a>
+        <a href="{% url 'inbox' %}">Inbox</a>
+    </div>
+
+    {% for message in messages %}
+        <div class="thread">
+            <h3>
+                <a href="{% url 'message_detail' message.id %}">
+                    To: {{ message.recipient.username }}
+                </a>
+            </h3>
+            <p class="meta">{{ message.created_at }}</p>
+            <p>{{ message.content|truncatechars:100 }}</p>
+            <a href="{% url 'message_detail' message.id %}">View conversation</a>
+        </div>
+    {% empty %}
+        <div class="card">
+            <p>You haven't sent any messages yet.</p>
+        </div>
+    {% endfor %}
+{% endblock %}
