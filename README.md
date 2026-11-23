@@ -1,9 +1,47 @@
-# cbsproject
+# Cyber Security Project
 
-Cyber Security Project
+## Installation and Setup
 
+### Requirements
+- Python 3
+- pip
 
-Vulnerability 1: OWASP A01:2021 – Broken Access Control
+### Setup
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/A5Beef/cbsproject.git
+   cd cbsproject
+   ```
+
+2. Create a virtual environment:
+   ```bash
+   python3 -m venv venv
+   ```
+
+3. Activate the environment:
+   ```bash
+   source venv/scripts/activate
+   ```
+
+4. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+5. Apply database migrations:
+   ```bash
+   python manage.py migrate
+   ```
+
+6. Start the development server:
+   ```bash
+   python manage.py runserver
+   ```
+
+# Vulnerabilities
+
+## Vulnerability 1: OWASP A01:2021 – Broken Access Control
 
 Affected functionality: Editing and deleting forum posts.
 
