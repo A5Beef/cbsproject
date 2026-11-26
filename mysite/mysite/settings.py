@@ -23,7 +23,7 @@ load_dotenv(BASE_DIR.parent / ".env")
 FERNET_KEY = os.getenv("FERNET_KEY")
 
 ENCRYPT_MESSAGES = os.getenv("ENCRYPT_MESSAGES", "True").lower() == "true"
-
+VULNERABLE_SEARCH = os.getenv("VULNERABLE_SEARCH", "False").lower() == "true"
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.1/howto/deployment/checklist/

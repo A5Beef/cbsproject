@@ -5,6 +5,7 @@ from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.db.models import Q
+from django.db import connection
 from django.conf import settings
 from .encryption import encrypt_message, get_message_content
 
@@ -194,4 +195,32 @@ def message_detail(request, message_id):
         "message": message,
         "conversation": conversation,
         "conversation_partner": conversation_partner
+    })
+
+def search_threads(request):
+    search_query = request.GET.get("q", "")
+    threads = Thread.objects.none()
+
+    if search_query:
+        if settings.VULNERABLE_SEARCH:
+            # Vulnerable implementation: SQL injection
+            sql = (
+                "SELECT * FROM board_thread " 
+                "WHERE title LIKE '%'" + search_query + "'%'"
+            )
+
+            with connection.cursor() as cursor:
+                cursor.execute(sql)
+                thread_ids = [row[0] for row in cursor.fetchall()]
+            
+            threads = Thread.objects.filter(id__in=thread_ids)
+
+        else:
+            # Secure implementation: Django ORM
+            threads = Thread.objects.filter(title__icontains=search_query)
+            
+
+    return render(request, "board/search_results.html", {
+        "threads": threads,
+        "query": search_query
     })
