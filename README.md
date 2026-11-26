@@ -1,66 +1,144 @@
 # Cyber Security Project
 
+This project is a work in progress and will contain five security
+demonstrations. This README currently documents the first two; the remaining
+three will be added as they are developed. Follow these lab steps on a local
+copy of the repository only. Vulnerability 1 is enabled by changing the
+post-ownership checks in the code; Vulnerability 2 is enabled by changing the
+message-encryption setting.
+
 ## Installation and Setup
 
 ### Requirements
+
 - Python 3
 - pip
 
 ### Setup
 
-1. Clone the repository:
+1. Clone the repository and enter its root directory:
    ```bash
    git clone https://github.com/A5Beef/cbsproject.git
    cd cbsproject
    ```
 
-2. Create a virtual environment:
+2. Create and activate a virtual environment:
    ```bash
    python3 -m venv venv
    ```
 
-3. Activate the environment:
-   
-   Windows:
-
+   Linux/macOS:
    ```bash
-   source venv/scripts/activate
-   ```
-
-   Linux/Mac:
-
-      ```bash
    source venv/bin/activate
    ```
 
-5. Install dependencies:
+   Windows PowerShell:
+   ```powershell
+   .\venv\Scripts\Activate.ps1
+   ```
+
+3. Install dependencies:
    ```bash
    pip install -r requirements.txt
    ```
 
-6. Navigate to mysite:
+4. Create a Fernet key:
+   ```bash
+   python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+   ```
+
+5. In the repository root (the directory containing `README.md`), create a
+   `.env` file with the generated key and the default secure setting:
+   ```env
+   FERNET_KEY=paste_generated_key_here
+   ENCRYPT_MESSAGES=True
+   ```
+
+   Keep this key unchanged while you have encrypted messages you want to read.
+
+6. Enter the Django project, migrate the database, and create an admin account:
    ```bash
    cd mysite
-   ```
-
-7. Apply database migrations:
-   ```bash
    python manage.py migrate
+   python manage.py createsuperuser
    ```
 
-8. Start the development server:
+7. Start the development server:
    ```bash
    python manage.py runserver
    ```
 
-# Vulnerabilities
+   Open the app at `http://127.0.0.1:8000/` and Django Admin at
+   `http://127.0.0.1:8000/admin/`. Use the superuser credentials for Admin.
+   Register regular users through the app for the demonstrations.
 
 ## Vulnerability 1: OWASP A01:2021 – Broken Access Control
 
-Affected functionality: Editing and deleting forum posts.
+This demonstrates missing ownership checks on post edit/delete operations.
+The checks are enabled in the starting code; make the following local change
+to turn on the vulnerability.
 
-Root cause: The application retrieves posts using their IDs without verifying that the currently authenticated user owns them.
+### Enable and demonstrate
 
-Impact: Any authenticated user who knows or discovers another post's ID and corresponding thread ID can modify or delete that post.
+1. Open `mysite/board/views.py`.
+2. In **both** `edit_post` and `delete_post`, find the `get_object_or_404`
+   lookup containing this condition:
+   ```python
+   author=request.user
+   ```
+   Comment out that line in both functions:
+   ```python
+   # author=request.user
+   ```
+3. Save the file. Django's development server normally reloads automatically;
+   restart it if it does not.
+4. Register two regular users, for example Alice and Bob. Log in as Alice,
+   create a thread, and add a reply.
+5. In Django Admin, open **Board > Posts** and click Alice's reply. Note the
+   post ID shown in the Admin page URL. Note the thread ID from the thread's
+   URL in the app.
+6. Log in to the app as Bob and open this URL, replacing the IDs with the ones
+   you noted:
+   ```text
+   http://127.0.0.1:8000/thread/<thread_id>/post/<post_id>/edit/
+   ```
+   The page lets Bob edit Alice's reply even though the thread page does not
+   show Bob the Edit link. The corresponding URL ending in `/delete/` also
+   allows Bob to reach the delete confirmation page.
 
-Remediation: Restrict database queries to posts belonging to the currently authenticated user, using author=request.user.
+### Restore the ownership check
+
+Uncomment `author=request.user` in both lookups in `mysite/board/views.py`.
+With the checks restored, Bob's direct edit/delete URL should return a 404
+instead of allowing access.
+
+## Vulnerability 2: OWASP A02:2021 – Cryptographic Failures
+
+This demonstrates a different issue: private-message content is stored in
+plaintext when encryption is disabled. A person with database access can read
+that content without using the app's message permissions. Encryption is
+controlled by `.env`; a valid `FERNET_KEY` is required when it is enabled.
+
+### Demonstrate plaintext storage
+
+1. Stop the development server.
+2. In the repository-root `.env` file, change the setting to:
+   ```env
+   ENCRYPT_MESSAGES=False
+   ```
+3. Restart the server and log in to the app as one regular user. Send a new
+   private message to the other user.
+4. Open Django Admin, select **Board > Messages**, and click the message you
+   just sent.
+5. The **Content** field shows the message in readable plaintext.
+
+### Enable encryption and compare
+
+1. Stop the server and set `ENCRYPT_MESSAGES=True` in `.env`. Keep the same
+   valid `FERNET_KEY`.
+2. Restart the server and send a **new** private message.
+3. Open that message in Django Admin. Its **Content** field is encrypted
+   ciphertext; open the message in the app to see the original text.
+
+The setting affects newly sent messages only. Changing it does not convert
+existing messages, so use a new message for each comparison.
