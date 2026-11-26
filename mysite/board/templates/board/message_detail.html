@@ -13,7 +13,7 @@
     <div class="card">
         {% for conversation_message in conversation %}
             <div class="message-bubble{% if conversation_message.sender == user %} sent{% endif %}{% if conversation_message.id == message.id %} selected{% endif %}">
-                <p>{{ conversation_message.content }}</p>
+                <p>{{ conversation_message.decrypted_content }}</p>
                 <small class="meta">
                     {% if conversation_message.sender == user %}
                         Sent by you

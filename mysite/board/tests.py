@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from django.test import TestCase
 from django.contrib.auth.models import User
 from django.urls import reverse
@@ -30,6 +32,29 @@ class MessagingTests(TestCase):
         self.assertNotContains(response, "To: alice")
         self.assertContains(response, "Hello Bob")
         self.assertNotContains(response, "Hello Alice")
+
+    def test_inbox_and_sent_messages_show_decrypted_content(self):
+        message = Message.objects.create(
+            sender=self.alice,
+            recipient=self.bob,
+            content="encrypted-content",
+            is_encrypted=True,
+        )
+
+        with patch(
+            "board.encryption.decrypt_message",
+            return_value="Decrypted message",
+        ):
+            self.client.force_login(self.bob)
+            inbox_response = self.client.get(reverse("inbox"))
+
+            self.client.force_login(self.alice)
+            sent_response = self.client.get(reverse("sent_messages"))
+
+        self.assertContains(inbox_response, "Decrypted message")
+        self.assertNotContains(inbox_response, message.content)
+        self.assertContains(sent_response, "Decrypted message")
+        self.assertNotContains(sent_response, message.content)
 
     def test_message_detail_is_available_to_sender_and_recipient(self):
         message = Message.objects.create(

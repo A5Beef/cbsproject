@@ -17,7 +17,7 @@
                 </a>
             </h3>
             <p class="meta">{{ message.created_at }}</p>
-            <p>{{ message.content|truncatechars:100 }}</p>
+            <p>{{ message.decrypted_content|truncatechars:100 }}</p>
             <a href="{% url 'message_detail' message.id %}">Read message</a>
         </div>
     {% empty %}

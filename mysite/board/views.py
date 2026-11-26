@@ -5,6 +5,8 @@ from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.db.models import Q
+from django.conf import settings
+from .encryption import encrypt_message, get_message_content
 
 
 def home(request):
@@ -74,8 +76,7 @@ def edit_post(request, thread_id, post_id):
         id=post_id,
         thread=thread,
 
-        # Broken Access Control. Commented out ownership check. Uncomment code below for secure version.
-        # Doesn't check ownership, resulting in other users being able to edit posts they don't own.
+        # Comment out this filter to demonstrate broken access control.
         author=request.user
         )
 
@@ -100,8 +101,7 @@ def delete_post(request, thread_id, post_id):
         id=post_id,
         thread=thread,
 
-        # Broken Access Control. Commented out ownership check. Uncomment code below for secure version.
-        # Doesn't check ownership, resulting in other users being able to delete posts they don't own.
+        # Comment out this filter to demonstrate broken access control.
         author=request.user
         )
 
@@ -118,6 +118,9 @@ def delete_post(request, thread_id, post_id):
 def inbox(request):
     messages = Message.objects.filter(recipient=request.user).order_by("-created_at")
 
+    for message in messages:
+        message.decrypted_content = get_message_content(message)
+
     return render(request, "board/inbox.html", {
         "messages": messages
     })
@@ -125,6 +128,9 @@ def inbox(request):
 @login_required
 def sent_messages(request):
     messages = Message.objects.filter(sender=request.user).order_by("-created_at")
+
+    for message in messages:
+        message.decrypted_content = get_message_content(message)
 
     return render(request, "board/sent_messages.html", {
         "messages": messages
@@ -139,10 +145,14 @@ def send_message(request):
         if recipient_id and content:
             recipient = get_object_or_404(User, id=recipient_id)
 
+            if settings.ENCRYPT_MESSAGES:
+                content = encrypt_message(content)
+
             Message.objects.create(
                 sender=request.user,
                 recipient=recipient,
-                content=content
+                content=content,
+                is_encrypted=settings.ENCRYPT_MESSAGES
             )
 
             return redirect("sent_messages")
@@ -156,10 +166,13 @@ def send_message(request):
 @login_required
 def message_detail(request, message_id):
     message = get_object_or_404(
-        Message,
-        Q(sender=request.user) | Q(recipient=request.user),
+        Message.objects.filter(
+        Q(sender=request.user) | Q(recipient=request.user)
+        ),
         id=message_id
     )
+
+    message.decrypted_content = get_message_content(message)
 
     conversation_partner = (
         message.recipient
@@ -170,6 +183,12 @@ def message_detail(request, message_id):
         Q(sender=request.user, recipient=conversation_partner)
         | Q(sender=conversation_partner, recipient=request.user)
     ).order_by("created_at")
+
+    for conversation_message in conversation:
+        conversation_message.decrypted_content = get_message_content(
+            conversation_message
+        )
+
 
     return render(request, "board/message_detail.html", {
         "message": message,
