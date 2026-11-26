@@ -20,6 +20,7 @@
    ```
 
 3. Activate the environment:
+   
    Windows:
 
    ```bash
@@ -32,22 +33,22 @@
    source venv/bin/activate
    ```
 
-4. Install dependencies:
+5. Install dependencies:
    ```bash
    pip install -r requirements.txt
    ```
 
-5. Navigate to mysite:
+6. Navigate to mysite:
    ```bash
    cd mysite
    ```
 
-6. Apply database migrations:
+7. Apply database migrations:
    ```bash
    python manage.py migrate
    ```
 
-7. Start the development server:
+8. Start the development server:
    ```bash
    python manage.py runserver
    ```
