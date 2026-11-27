@@ -1,11 +1,11 @@
 # Cyber Security Project
 
 This project is a work in progress and will contain five security
-demonstrations. This README currently documents the first two; the remaining
-three will be added as they are developed. Follow these lab steps on a local
+demonstrations. This README currently documents the first three; the remaining
+two will be added as they are developed. Follow these lab steps on a local
 copy of the repository only. Vulnerability 1 is enabled by changing the
-post-ownership checks in the code; Vulnerability 2 is enabled by changing the
-message-encryption setting.
+post-ownership checks in the code. Vulnerabilities 2 and 3 are controlled by
+settings in `.env`.
 
 ## Installation and Setup
 
@@ -52,6 +52,7 @@ message-encryption setting.
    ```env
    FERNET_KEY=paste_generated_key_here
    ENCRYPT_MESSAGES=True
+   VULNERABLE_SEARCH=False
    ```
 
    Keep this key unchanged while you have encrypted messages you want to read.
@@ -142,3 +143,39 @@ controlled by `.env`; a valid `FERNET_KEY` is required when it is enabled.
 
 The setting affects newly sent messages only. Changing it does not convert
 existing messages, so use a new message for each comparison.
+
+## Vulnerability 3: OWASP A03:2021 – Injection
+
+This demonstrates SQL injection in the thread-title search. When the
+vulnerable setting is enabled, the search term is concatenated directly into a
+SQL query. The default setting uses Django's ORM, which safely handles the
+search term.
+
+### Enable and demonstrate
+
+1. Stop the development server.
+2. In the repository-root `.env` file, add or change the setting to:
+   ```env
+   VULNERABLE_SEARCH=True
+   ```
+3. Restart the server and open **Search discussions** in the app.
+4. Search for a title that does not match any thread and note that there are
+   no results.
+5. Search for this input:
+   ```text
+   ' OR '1'='1' --
+   ```
+   The injected condition is always true, so the vulnerable query returns all
+   threads, including those whose titles do not match the search.
+
+### Restore the safe search
+
+1. Stop the server and set `VULNERABLE_SEARCH=False` in the repository-root
+   `.env` file.
+2. Restart the server and repeat the search. The input is now treated as
+   ordinary text, and only matching titles are returned.
+
+The safe implementation uses Django's ORM in `mysite/board/views.py`:
+```python
+threads = Thread.objects.filter(title__icontains=search_query)
+```
