@@ -32,9 +32,9 @@ message-encryption setting.
    source venv/bin/activate
    ```
 
-   Windows PowerShell:
+   Windows:
    ```powershell
-   .\venv\Scripts\Activate.ps1
+   source venv\Scripts\activate
    ```
 
 3. Install dependencies:

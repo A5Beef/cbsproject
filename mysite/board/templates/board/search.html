@@ -1,0 +1,42 @@
+{% extends "board/base.html" %}
+
+{% block title %}Search - VulnerableBoard{% endblock %}
+
+{% block content %}
+    <div class="card">
+        <h2>Search discussions</h2>
+
+        <form method="GET" action="{% url 'search_threads' %}">
+            <p>
+                <label for="search-query">Thread title</label>
+                <input
+                    id="search-query"
+                    type="text"
+                    name="q"
+                    placeholder="Search thread titles..."
+                    value="{{ search_query }}"
+                >
+            </p>
+            <div class="actions">
+                <button type="submit">Search</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="card">
+        <h2>Results</h2>
+
+        {% for thread in threads %}
+            <div class="thread">
+                <h3>
+                    <a href="{% url 'thread_detail' thread.id %}">
+                        {{ thread.title }}
+                    </a>
+                </h3>
+                <p class="meta">Posted by {{ thread.author.username }} on {{ thread.created_at }}</p>
+            </div>
+        {% empty %}
+            <p>No matching discussions found.</p>
+        {% endfor %}
+    </div>
+{% endblock %}

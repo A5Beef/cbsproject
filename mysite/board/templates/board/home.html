@@ -5,6 +5,7 @@
 {% block content %}
     <div class="actions">
         <h2>Recent discussions</h2>
+        <a href="{% url 'search_threads' %}">Search discussions</a>
         {% if user.is_authenticated %}
             <a href="{% url 'create_thread' %}">Start a discussion</a>
         {% endif %}

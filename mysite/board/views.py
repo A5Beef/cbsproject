@@ -206,7 +206,7 @@ def search_threads(request):
             # Vulnerable implementation: SQL injection
             sql = (
                 "SELECT * FROM board_thread " 
-                "WHERE title LIKE '%'" + search_query + "'%'"
+                "WHERE title LIKE '%" + search_query + "%'"
             )
 
             with connection.cursor() as cursor:
@@ -220,7 +220,7 @@ def search_threads(request):
             threads = Thread.objects.filter(title__icontains=search_query)
             
 
-    return render(request, "board/search_results.html", {
+    return render(request, "board/search.html", {
         "threads": threads,
         "query": search_query
     })

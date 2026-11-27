@@ -67,4 +67,9 @@ urlpatterns = [
         views.message_detail,
         name="message_detail"
         ),
+
+    path("search/",
+        views.search_threads,
+        name="search_threads"
+        ),
 ]
